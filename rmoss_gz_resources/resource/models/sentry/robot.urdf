@@ -1,0 +1,319 @@
+<?xml version="1.0"?>
+<robot name="generated_robot">
+  <material name="yaw_red">
+    <color rgba="0.9 0.25 0.25 1.0"/>
+  </material>
+  <material name="pitch_blue">
+    <color rgba="0.2 0.5 1.0 1.0"/>
+  </material>
+  <material name="wheel_green">
+    <color rgba="0.2 0.75 0.4 1.0"/>
+  </material>
+  <link name="base_footprint"/>
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-3.4e-7 -1.2e-7 0.04642099" rpy="0 0 0"/>
+      <mass value="4.43990188"/>
+      <inertia ixx="0.11659852" ixy="0" ixz="0" iyy="0.11002631" iyz="0" izz="0.18862864"/>
+    </inertial>
+    <visual name="part_004_visual_1">
+      <origin xyz="0 0 0" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_004_NAUO4.stl" scale="0.001 0.001 0.001"/></geometry>
+    </visual>
+    <collision name="part_004_collision_1">
+      <origin xyz="0 0 0" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_004_NAUO4.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+  </link>
+  <link name="yaw_link">
+    <inertial>
+      <origin xyz="0.02356775 -0.05792194 0.16556584" rpy="0 0 0"/>
+      <mass value="1.13031543"/>
+      <inertia ixx="0.01443808" ixy="0.00001493" ixz="-0.00004119" iyy="0.01588943" iyz="0.00010123" izz="0.01122883"/>
+    </inertial>
+    <visual name="part_013_visual_1">
+      <origin xyz="0.00006496 3e-8 -0.1335" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_013_NAUO13.stl" scale="0.001 0.001 0.001"/></geometry>
+      <material name="yaw_red"/>
+    </visual>
+    <collision name="part_013_collision_1">
+      <origin xyz="0.00006496 3e-8 -0.1335" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_013_NAUO13.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+    <visual name="part_003_visual_2">
+      <origin xyz="0.00006496 3e-8 -0.1335" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_003_NAUO3.stl" scale="0.001 0.001 0.001"/></geometry>
+      <material name="yaw_red"/>
+    </visual>
+    <collision name="part_003_collision_2">
+      <origin xyz="0.00006496 3e-8 -0.1335" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_003_NAUO3.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+  </link>
+  <link name="pitch_link">
+    <inertial>
+      <origin xyz="-0.03381723 -0.00221963 0.04107461" rpy="0 0 0"/>
+      <mass value="1.14451026"/>
+      <inertia ixx="0.00764978" ixy="-6e-8" ixz="5.7e-7" iyy="0.01233271" iyz="7e-8" izz="0.01252122"/>
+    </inertial>
+    <visual name="part_001_visual_1">
+      <origin xyz="0.00620338 -0.02392506 -0.24114277" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_001_NAUO1.stl" scale="0.001 0.001 0.001"/></geometry>
+      <material name="pitch_blue"/>
+    </visual>
+    <collision name="part_001_collision_1">
+      <origin xyz="0.00620338 -0.02392506 -0.24114277" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_001_NAUO1.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+    <visual name="part_002_visual_2">
+      <origin xyz="0.00620338 -0.02392506 -0.24114277" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_002_NAUO2.stl" scale="0.001 0.001 0.001"/></geometry>
+      <material name="pitch_blue"/>
+    </visual>
+    <collision name="part_002_collision_2">
+      <origin xyz="0.00620338 -0.02392506 -0.24114277" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_002_NAUO2.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+  </link>
+  <link name="camera_link">
+    <inertial>
+      <origin xyz="-0.03931159 -0.0123547 0.33155005" rpy="0 0 0"/>
+      <mass value="0.06340288"/>
+      <inertia ixx="0.00002791" ixy="0" ixz="0" iyy="0.00005549" iyz="0" izz="0.00005798"/>
+    </inertial>
+    <visual name="part_014_visual_1">
+      <origin xyz="0 0 0" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_014_NAUO14.stl" scale="0.001 0.001 0.001"/></geometry>
+    </visual>
+    <collision name="part_014_collision_1">
+      <origin xyz="0 0 0" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_014_NAUO14.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+  </link>
+  <link name="lidar_link">
+    <inertial>
+      <origin xyz="-0.04917722 -0.12748498 0.38629873" rpy="0 0 0"/>
+      <mass value="0.20647793"/>
+      <inertia ixx="0.0001831" ixy="0" ixz="-6e-8" iyy="0.00018227" iyz="0" izz="0.00022845"/>
+    </inertial>
+    <visual name="part_016_visual_1">
+      <origin xyz="0 0 0" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_016_surface_shells_001.stl" scale="0.001 0.001 0.001"/></geometry>
+    </visual>
+    <collision name="part_016_collision_1">
+      <origin xyz="0 0 0" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_016_surface_shells_001.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+    <visual name="part_015_visual_2">
+      <origin xyz="0 0 0" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_015_NAUO15.stl" scale="0.001 0.001 0.001"/></geometry>
+    </visual>
+    <collision name="part_015_collision_2">
+      <origin xyz="0 0 0" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_015_NAUO15.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+  </link>
+  <link name="FL_hanging">
+    <inertial>
+      <origin xyz="-0.04526541 0.02599572 0.01735" rpy="0 0 0"/>
+      <mass value="0.20130538"/>
+      <inertia ixx="0.00024349" ixy="0" ixz="0" iyy="0.00025769" iyz="0" izz="0.00029199"/>
+    </inertial>
+    <visual name="part_007_visual_1">
+      <origin xyz="0.0805 -0.10119 0.05" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_007_NAUO7.stl" scale="0.001 0.001 0.001"/></geometry>
+    </visual>
+    <collision name="part_007_collision_1">
+      <origin xyz="0.0805 -0.10119 0.05" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_007_NAUO7.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+  </link>
+  <link name="FR_hanging">
+    <inertial>
+      <origin xyz="0.04526541 0.02599572 -0.01735" rpy="0 0 0"/>
+      <mass value="0.20130537"/>
+      <inertia ixx="0.00024349" ixy="0" ixz="0" iyy="0.00025769" iyz="0" izz="0.00029199"/>
+    </inertial>
+    <visual name="part_005_visual_1">
+      <origin xyz="-0.0805 -0.10119 0.0153" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_005_NAUO5.stl" scale="0.001 0.001 0.001"/></geometry>
+    </visual>
+    <collision name="part_005_collision_1">
+      <origin xyz="-0.0805 -0.10119 0.0153" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_005_NAUO5.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+  </link>
+  <link name="BR_hanging">
+    <inertial>
+      <origin xyz="0.04026541 -0.03199572 -0.01235" rpy="0 0 0"/>
+      <mass value="0.20130538"/>
+      <inertia ixx="0.00024349" ixy="0" ixz="0" iyy="0.00025769" iyz="0" izz="0.00029199"/>
+    </inertial>
+    <visual name="part_006_visual_1">
+      <origin xyz="-0.0855 0.09519 0.0203" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_006_NAUO6.stl" scale="0.001 0.001 0.001"/></geometry>
+    </visual>
+    <collision name="part_006_collision_1">
+      <origin xyz="-0.0855 0.09519 0.0203" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_006_NAUO6.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+  </link>
+  <link name="BL_hanging">
+    <inertial>
+      <origin xyz="-0.04526541 -0.02599572 -0.01735" rpy="0 0 0"/>
+      <mass value="0.20130537"/>
+      <inertia ixx="0.00024349" ixy="0" ixz="0" iyy="0.00025769" iyz="0" izz="0.00029199"/>
+    </inertial>
+    <visual name="part_008_visual_1">
+      <origin xyz="0.0805 0.10119 0.0153" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_008_NAUO8.stl" scale="0.001 0.001 0.001"/></geometry>
+    </visual>
+    <collision name="part_008_collision_1">
+      <origin xyz="0.0805 0.10119 0.0153" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_008_NAUO8.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+  </link>
+  <link name="BL">
+    <inertial>
+      <origin xyz="-0.00240029 -0.00240029 0" rpy="0 0 0"/>
+      <mass value="0.29860949"/>
+      <inertia ixx="0.00098761" ixy="0" ixz="0" iyy="0.00098761" iyz="0" izz="0.00082457"/>
+    </inertial>
+    <visual name="part_011_visual_1">
+      <origin xyz="0.14300592 0.14219592 0.03265" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_011_NAUO11.stl" scale="0.001 0.001 0.001"/></geometry>
+      <material name="wheel_green"/>
+    </visual>
+    <collision name="part_011_collision_1">
+      <origin xyz="0.14300592 0.14219592 0.03265" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_011_NAUO11.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+  </link>
+  <link name="BR">
+    <inertial>
+      <origin xyz="0.00228296 -0.00228296 0" rpy="0 0 0"/>
+      <mass value="0.29860948"/>
+      <inertia ixx="0.00098891" ixy="0" ixz="0" iyy="0.00098891" iyz="0" izz="0.00082747"/>
+    </inertial>
+    <visual name="part_009_visual_1">
+      <origin xyz="-0.14300592 0.14219592 0.03265" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_009_NAUO9.stl" scale="0.001 0.001 0.001"/></geometry>
+      <material name="wheel_green"/>
+    </visual>
+    <collision name="part_009_collision_1">
+      <origin xyz="-0.14300592 0.14219592 0.03265" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_009_NAUO9.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+  </link>
+  <link name="FR">
+    <inertial>
+      <origin xyz="0.00220645 0.00220646 0" rpy="0 0 0"/>
+      <mass value="0.29860948"/>
+      <inertia ixx="0.00098852" ixy="0" ixz="0" iyy="0.00098852" iyz="0" izz="0.00082844"/>
+    </inertial>
+    <visual name="part_010_visual_1">
+      <origin xyz="-0.14300592 -0.14219592 0.03265" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_010_NAUO10.stl" scale="0.001 0.001 0.001"/></geometry>
+      <material name="wheel_green"/>
+    </visual>
+    <collision name="part_010_collision_1">
+      <origin xyz="-0.14300592 -0.14219592 0.03265" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_010_NAUO10.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+  </link>
+  <link name="FL">
+    <inertial>
+      <origin xyz="-0.00227498 0.00227498 0" rpy="0 0 0"/>
+      <mass value="0.29860949"/>
+      <inertia ixx="0.0009889" ixy="0" ixz="0" iyy="0.0009889" iyz="0" izz="0.0008276"/>
+    </inertial>
+    <visual name="part_012_visual_1">
+      <origin xyz="0.14300592 -0.14219592 0.03265" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_012_NAUO12.stl" scale="0.001 0.001 0.001"/></geometry>
+      <material name="wheel_green"/>
+    </visual>
+    <collision name="part_012_collision_1">
+      <origin xyz="0.14300592 -0.14219592 0.03265" rpy="1.57079633 0 0"/>
+      <geometry><mesh filename="meshes/part_012_NAUO12.stl" scale="0.001 0.001 0.001"/></geometry>
+    </collision>
+  </link>
+  <joint name="base_joint" type="continuous">
+    <parent link="base_footprint" />       
+    <child link="base_link" />
+    <origin xyz="-0.00006496 -3e-8 0" rpy="0 0 0" />
+    <axis xyz="0 0 1" />              <!-- 绕 Z 轴旋转，和 yaw_joint 同一方向 -->
+    <limit effort="10" velocity="5" />
+  </joint>
+  <joint name="yaw_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="yaw_link"/>
+    <origin xyz="-0.00006496 -3e-8 0.1335" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="5"/>
+  </joint>
+  <joint name="pitch_joint" type="revolute">
+    <parent link="yaw_link"/>
+    <child link="pitch_link"/>
+    <origin xyz="-0.00613843 0.0239251 0.10764277" rpy="0 0 0"/>
+    <axis xyz="-0.24944857 0.96838805 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="5"/>
+  </joint>
+  <joint name="camera_joint" type="fixed">
+    <parent link="pitch_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0.00620338 -0.02392506 -0.24114277" rpy="0 0 0"/>
+  </joint>
+  <joint name="lidar_joint" type="fixed">
+    <parent link="yaw_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="0.00006496 3e-8 -0.1335" rpy="0 0 0"/>
+  </joint>
+  <joint name="FL_hanging_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="FL_hanging"/>
+    <origin xyz="-0.0805 0.10119 -0.05" rpy="0 0 0"/>
+  </joint>
+  <joint name="FR_hanging_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="FR_hanging"/>
+    <origin xyz="0.0805 0.10119 -0.0153" rpy="0 0 0"/>
+  </joint>
+  <joint name="BR_hanging_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="BR_hanging"/>
+    <origin xyz="0.0855 -0.09519 -0.0203" rpy="0 0 0"/>
+  </joint>
+  <joint name="BL_hanging_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="BL_hanging"/>
+    <origin xyz="-0.0805 -0.10119 -0.0153" rpy="0 0 0"/>
+  </joint>
+  <joint name="BL_joint" type="continuous">
+    <parent link="BL_hanging"/>
+    <child link="BL"/>
+    <origin xyz="-0.06250592 -0.04100592 -0.01735" rpy="0 0 0"/>
+    <axis xyz="-0.70710678 -0.70710678 0"/>
+    <limit effort="10" velocity="5"/>
+  </joint>
+  <joint name="BR_joint" type="continuous">
+    <parent link="BR_hanging"/>
+    <child link="BR"/>
+    <origin xyz="0.05750592 -0.04700592 -0.01235" rpy="0 0 0"/>
+    <axis xyz="0.70710678 -0.70710678 0"/>
+    <limit effort="10" velocity="5"/>
+  </joint>
+  <joint name="FR_joint" type="continuous">
+    <parent link="FR_hanging"/>
+    <child link="FR"/>
+    <origin xyz="0.06250592 0.04100592 -0.01735" rpy="0 0 0"/>
+    <axis xyz="0.70710678 0.70710678 0"/>
+    <limit effort="10" velocity="5"/>
+  </joint>
+  <joint name="FL_joint" type="continuous">
+    <parent link="FL_hanging"/>
+    <child link="FL"/>
+    <origin xyz="-0.06250592 0.04100592 0.01735" rpy="0 0 0"/>
+    <axis xyz="-0.70710678 0.70710678 0"/>
+    <limit effort="10" velocity="5"/>
+  </joint>
+</robot>
