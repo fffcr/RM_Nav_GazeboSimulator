@@ -45,9 +45,15 @@ target_link_libraries(LightBarController
   ignition-gazebo${IGN_GAZEBO_VER}::ignition-gazebo${IGN_GAZEBO_VER}
 )
 
+# for plugins JointForceController
+add_library(JointForceController SHARED plugins/joint_force_controller/JointForceController.cc)
+target_link_libraries(JointForceController
+  ignition-gazebo${IGN_GAZEBO_VER}::ignition-gazebo${IGN_GAZEBO_VER}
+)
+
 
 # Install plugins
-install(TARGETS MecanumDrive2 OmniDrive ProjectileShooter LightBarController
+install(TARGETS MecanumDrive2 OmniDrive ProjectileShooter LightBarController JointForceController
     DESTINATION plugins
 )
 

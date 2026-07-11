@@ -25,6 +25,11 @@ from launch_ros.actions import Node
 from nav2_common.launch import ReplaceString
 
 
+def _bool_env(name: str, default: str = "false") -> str:
+    """Read env var as lowercase string, fallback to default (for xacro mappings)."""
+    return os.getenv(name, default).strip().lower()
+
+
 def generate_launch_description():
     pkg_simulator = get_package_share_directory("rmu_gazebo_simulator")
     pkg_rmoss_gz_resources = get_package_share_directory("rmoss_gz_resources")
@@ -50,7 +55,10 @@ def generate_launch_description():
         # ----------------------------------------------------------------
         # Step 1: xacro → URDF string
         # ----------------------------------------------------------------
-        xacro_doc = xacro.process_file(robot_xacro_path)
+        xacro_doc = xacro.process_file(
+            robot_xacro_path,
+            mappings={"use_force_commands": _bool_env("FORCE_MODE", "false")},
+        )
         robot_urdf_xml = xacro_doc.toprettyxml(indent="  ")
 
         # ----------------------------------------------------------------

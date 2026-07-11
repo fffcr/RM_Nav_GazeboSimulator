@@ -76,6 +76,7 @@ private:
   std::shared_ptr<rmoss_gz_base::OdometryPublisher> odometry_publisher_;
   //
   bool is_red_;
+  bool force_mode_;
 };
 
 }  // namespace rmoss_gz_base

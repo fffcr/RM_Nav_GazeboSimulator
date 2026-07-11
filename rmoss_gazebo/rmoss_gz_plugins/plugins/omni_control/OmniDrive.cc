@@ -108,9 +108,6 @@ public:
     transport::Node::Publisher odomPub;
 };
 
-// ===================================================================
-//  OmniDrive
-// ===================================================================
 OmniDrive::OmniDrive()
     : dataPtr(std::make_unique<OmniDrivePrivate>())
 {
@@ -195,9 +192,7 @@ void OmniDrive::Configure(const Entity &_entity,
     igndbg << "OmniDrive configured successfully." << std::endl;
 }
 
-// ===================================================================
-//  PreUpdate — 核心控制循环
-// ===================================================================
+
 void OmniDrive::PreUpdate(const ignition::gazebo::UpdateInfo &_info,
                           ignition::gazebo::EntityComponentManager &_ecm)
 {
@@ -263,18 +258,13 @@ void OmniDrive::PreUpdate(const ignition::gazebo::UpdateInfo &_info,
     }
 }
 
-// ===================================================================
-//  PostUpdate — 里程计
-// ===================================================================
 void OmniDrive::PostUpdate(const ignition::gazebo::UpdateInfo &_info,
                            const ignition::gazebo::EntityComponentManager &_ecm)
 {
     this->dataPtr->UpdateOdometry(_info, _ecm);
 }
 
-// ===================================================================
-//  OmniDrivePrivate 方法
-// ===================================================================
+
 
 void OmniDrivePrivate::OnCmdVel(const ignition::msgs::Twist &_msg)
 {
@@ -286,13 +276,14 @@ void OmniDrivePrivate::ComputeWheelVelocities(double _vx, double _vy,
                                               double _omega,
                                               double _target[WHEEL_NUM])
 {
-    // omni wheel inverse kinematics (45° wheel mounting, rollers ⟂ wheel plane)
+    // omni wheel inverse kinematics (rollers ⟂ wheel plane)
     //
     //   lx = wheel_separation_x / 2   (half wheelbase, front–rear)
     //   ly = wheel_separation_y / 2   (half track width, left–right)
     //   L  = lx + ly
     //
-    // Rolling direction per wheel (positive ω):
+    // Each wheel hub is mounted at ±45°; drive force is along hub axis.
+    // Positive ω produces rolling in:
     //   FL → (+x, +y)    FR → (+x, -y)
     //   RL → (-x, +y)    RR → (-x, -y)
     //
@@ -308,10 +299,10 @@ void OmniDrivePrivate::ComputeWheelVelocities(double _vx, double _vy,
     double L  = lx + ly;
     double r  = wheelRadius;
 
-    _target[FRONT_LEFT]  = (+_vx + _vy - L * _omega) / r;
-    _target[FRONT_RIGHT] = (+_vx - _vy - L * _omega) / r;
-    _target[REAR_LEFT]   = (-_vx + _vy - L * _omega) / r;
-    _target[REAR_RIGHT]  = (-_vx - _vy - L * _omega) / r;
+    _target[FRONT_LEFT]  = (+_vx - _vy - L * _omega) / r;
+    _target[FRONT_RIGHT] = (-_vx - _vy - L * _omega) / r;
+    _target[REAR_LEFT]   = (+_vx + _vy - L * _omega) / r;
+    _target[REAR_RIGHT]  = (-_vx + _vy - L * _omega) / r;
 }
 
 void OmniDrivePrivate::UpdateOdometry(

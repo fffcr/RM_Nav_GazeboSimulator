@@ -1,6 +1,14 @@
-world: "rmuc_2025"
+world: "empty"
 
 robots:
+
+  empty:
+    - name: "sentry"
+      color: "red"
+      x_pose: "0.0"
+      y_pose: "0.0"
+      z_pose: "0.4"
+      yaw: "0.0"
 
   rmul_2024:
     - name: "red_standard_robot1"

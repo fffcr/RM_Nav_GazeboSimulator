@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <!-- joint state publisher -->
+    <!-- force_mode flag: set "true" for direct torque control, "false" (default) for PID control -->
+    <xacro:arg name="use_force_commands" default="false"/>
+
+    <!-- joint state publisher (both modes) -->
     <gazebo>
         <plugin filename="ignition-gazebo-joint-state-publisher-system"
                 name="ignition::gazebo::systems::JointStatePublisher">
@@ -13,37 +16,97 @@
         </plugin>
     </gazebo>
 
-    <!-- chassis control (mecanum inverse kinematics) -->
-    <gazebo>
-        <plugin filename="OmniDrive" name="ignition::gazebo::systems::OmniDrive">
-            <chassis_link>chassis</chassis_link>
-            <front_left_joint>front_left_wheel_joint</front_left_joint>
-            <front_right_joint>front_right_wheel_joint</front_right_joint>
-            <rear_left_joint>rear_left_wheel_joint</rear_left_joint>
-            <rear_right_joint>rear_right_wheel_joint</rear_right_joint>
-            <wheel_radius>0.076</wheel_radius>
-            <wheel_separation_x>0.286</wheel_separation_x>
-            <wheel_separation_y>0.284</wheel_separation_y>
-        </plugin>
-    </gazebo>
+    <xacro:unless value="$(arg use_force_commands)">
+        <!-- chassis control (mecanum inverse kinematics) -->
+        <gazebo>
+            <plugin filename="OmniDrive" name="ignition::gazebo::systems::OmniDrive">
+                <chassis_link>chassis</chassis_link>
+                <front_left_joint>front_left_wheel_joint</front_left_joint>
+                <front_right_joint>front_right_wheel_joint</front_right_joint>
+                <rear_left_joint>rear_left_wheel_joint</rear_left_joint>
+                <rear_right_joint>rear_right_wheel_joint</rear_right_joint>
+                <wheel_radius>0.076</wheel_radius>
+                <wheel_separation_x>0.286</wheel_separation_x>
+                <wheel_separation_y>0.284</wheel_separation_y>
+            </plugin>
+        </gazebo>
 
-    <!-- yaw control -->
-    <gazebo>
-        <plugin filename="ignition-gazebo-joint-controller-system"
-                name="ignition::gazebo::systems::JointController">
-            <joint_name>gimbal_yaw_joint</joint_name>
-            <use_force_commands>false</use_force_commands>
-            <p_gain>0.5</p_gain>
-            <i_gain>0.01</i_gain>
-            <d_gain>0.1</d_gain>
-            <i_max>1</i_max>
-            <i_min>-1</i_min>
-            <cmd_max>30</cmd_max>
-            <cmd_min>-30</cmd_min>
-        </plugin>
-    </gazebo>
+        <!-- yaw control -->
+        <gazebo>
+            <plugin filename="ignition-gazebo-joint-controller-system"
+                    name="ignition::gazebo::systems::JointController">
+                <joint_name>gimbal_yaw_joint</joint_name>
+                <use_force_commands>false</use_force_commands>
+                <p_gain>0.5</p_gain>
+                <i_gain>0.01</i_gain>
+                <d_gain>0.1</d_gain>
+                <i_max>1</i_max>
+                <i_min>-1</i_min>
+                <cmd_max>30</cmd_max>
+                <cmd_min>-30</cmd_min>
+            </plugin>
+        </gazebo>
 
-    <!-- LiDAR sensor (参照 MID360 参数) -->
+        <!-- pitch control -->
+        <gazebo>
+            <plugin filename="ignition-gazebo-joint-controller-system"
+                    name="ignition::gazebo::systems::JointController">
+                <joint_name>gimbal_pitch_joint</joint_name>
+                <use_force_commands>false</use_force_commands>
+                <p_gain>0.8</p_gain>
+                <i_gain>0.05</i_gain>
+                <d_gain>0.2</d_gain>
+                <i_max>10</i_max>
+                <i_min>-10</i_min>
+                <cmd_max>50</cmd_max>
+                <cmd_min>-50</cmd_min>
+            </plugin>
+        </gazebo>
+    </xacro:unless>
+
+    <xacro:if value="$(arg use_force_commands)">
+        <!-- wheels: direct torque per wheel -->
+        <gazebo>
+            <plugin filename="JointForceController"
+                    name="ignition::gazebo::systems::JointForceController">
+                <joint_name>front_left_wheel_joint</joint_name>
+            </plugin>
+        </gazebo>
+        <gazebo>
+            <plugin filename="JointForceController"
+                    name="ignition::gazebo::systems::JointForceController">
+                <joint_name>front_right_wheel_joint</joint_name>
+            </plugin>
+        </gazebo>
+        <gazebo>
+            <plugin filename="JointForceController"
+                    name="ignition::gazebo::systems::JointForceController">
+                <joint_name>rear_left_wheel_joint</joint_name>
+            </plugin>
+        </gazebo>
+        <gazebo>
+            <plugin filename="JointForceController"
+                    name="ignition::gazebo::systems::JointForceController">
+                <joint_name>rear_right_wheel_joint</joint_name>
+            </plugin>
+        </gazebo>
+
+        <!-- gimbal: direct torque per joint -->
+        <gazebo>
+            <plugin filename="JointForceController"
+                    name="ignition::gazebo::systems::JointForceController">
+                <joint_name>gimbal_yaw_joint</joint_name>
+            </plugin>
+        </gazebo>
+        <gazebo>
+            <plugin filename="JointForceController"
+                    name="ignition::gazebo::systems::JointForceController">
+                <joint_name>gimbal_pitch_joint</joint_name>
+            </plugin>
+        </gazebo>
+    </xacro:if>
+
+    <!-- LiDAR sensor (both modes) -->
     <gazebo reference="lidar_link">
         <sensor name="lidar_sensor" type="gpu_lidar">
             <frame_name>lidar_link</frame_name>
@@ -79,7 +142,7 @@
         </sensor>
     </gazebo>
 
-    <!-- Camera sensor -->
+    <!-- Camera sensor (both modes) -->
     <gazebo reference="camera_link">
         <sensor name="camera_sensor" type="camera">
             <always_on>1</always_on>
@@ -94,28 +157,12 @@
         </sensor>
     </gazebo>
 
-    <!-- IMU sensor -->
+    <!-- IMU sensor (both modes) -->
     <gazebo reference="gimbal_pitch">
         <sensor name="gimbal_imu" type="imu">
             <always_on>1</always_on>
             <update_rate>200</update_rate>
         </sensor>
-    </gazebo>
-
-    <!-- pitch control -->
-    <gazebo>
-        <plugin filename="ignition-gazebo-joint-controller-system"
-                name="ignition::gazebo::systems::JointController">
-            <joint_name>gimbal_pitch_joint</joint_name>
-            <use_force_commands>false</use_force_commands>
-            <p_gain>0.8</p_gain>
-            <i_gain>0.05</i_gain>
-            <d_gain>0.2</d_gain>
-            <i_max>10</i_max>
-            <i_min>-10</i_min>
-            <cmd_max>50</cmd_max>
-            <cmd_min>-50</cmd_min>
-        </plugin>
     </gazebo>
 
     <!-- ====== directional friction: mu along rolling dir, mu2 along roller dir ====== -->
