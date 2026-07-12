@@ -5,14 +5,12 @@
   gz_type_name: "ignition.msgs.Odometry"
   direction: "GZ_TO_ROS"
 
-# JointStatePublisher → joint_states
 - ros_topic_name: "/<robot_name>/joint_states"
   gz_topic_name: "/world/default/model/<robot_name>/joint_state"
   ros_type_name: "sensor_msgs/msg/JointState"
   gz_type_name: "ignition.msgs.Model"
   direction: "GZ_TO_ROS"
 
-# Camera (camera_link / camera_sensor)
 - ros_topic_name: "/<robot_name>/camera/image"
   gz_topic_name: "/world/default/model/<robot_name>/link/camera_link/sensor/camera_sensor/image"
   ros_type_name: "sensor_msgs/msg/Image"
@@ -25,15 +23,13 @@
   gz_type_name: "ignition.msgs.CameraInfo"
   direction: "GZ_TO_ROS"
 
-# LiDAR LaserScan (2D horizontal slice)
 - ros_topic_name: "/<robot_name>/lidar/scan"
   gz_topic_name: "/world/default/model/<robot_name>/link/yaw_link/sensor/lidar_sensor/scan"
   ros_type_name: "sensor_msgs/msg/LaserScan"
   gz_type_name: "ignition.msgs.LaserScan"
   direction: "GZ_TO_ROS"
 
-# LiDAR PointCloud2 (3D full point cloud, MID360 32-line)
-- ros_topic_name: "/<robot_name>/lidar/points"
+- ros_topic_name: "/livox/lidar"
   gz_topic_name: "/world/default/model/<robot_name>/link/yaw_link/sensor/lidar_sensor/scan/points"
   ros_type_name: "sensor_msgs/msg/PointCloud2"
   gz_type_name: "ignition.msgs.PointCloudPacked"
@@ -42,6 +38,24 @@
 # IMU (gimbal_pitch / gimbal_imu)
 - ros_topic_name: "/<robot_name>/imu"
   gz_topic_name: "/world/default/model/<robot_name>/link/gimbal_pitch/sensor/gimbal_imu/imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "ignition.msgs.IMU"
+  direction: "GZ_TO_ROS"
+
+- ros_topic_name: "/livox/imu"
+  gz_topic_name: "/world/default/model/<robot_name>/link/lidar_link/sensor/lidar_imu/imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "ignition.msgs.IMU"
+  direction: "GZ_TO_ROS"
+
+- ros_topic_name: "/livox/pose"
+  gz_topic_name: "/world/default/model/<robot_name>/link/lidar_link/pose"
+  ros_type_name: "geometry_msgs/msg/PoseStamped"
+  gz_type_name: "ignition.msgs.Pose"
+  direction: "GZ_TO_ROS"
+
+- ros_topic_name: "/<robot_name>/chassis_imu"
+  gz_topic_name: "/world/default/model/<robot_name>/link/chassis/sensor/chassis_imu/imu"
   ros_type_name: "sensor_msgs/msg/Imu"
   gz_type_name: "ignition.msgs.IMU"
   direction: "GZ_TO_ROS"

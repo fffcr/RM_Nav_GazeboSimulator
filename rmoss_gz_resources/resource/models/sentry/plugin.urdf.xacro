@@ -106,32 +106,47 @@
         </gazebo>
     </xacro:if>
 
+    <!-- LiDAR pose publisher (both modes) -->
+    <gazebo reference="lidar_link">
+        <plugin filename="ignition-gazebo-pose-publisher-system"
+                name="ignition::gazebo::systems::PosePublisher">
+            <publish_link_pose>true</publish_link_pose>
+            <publish_collision_pose>false</publish_collision_pose>
+            <publish_visual_pose>false</publish_visual_pose>
+            <publish_nested_model_pose>false</publish_nested_model_pose>
+            <use_pose_vector_msg>false</use_pose_vector_msg>
+            <update_rate>100</update_rate>
+        </plugin>
+    </gazebo>
+
     <!-- LiDAR sensor (both modes) -->
     <gazebo reference="lidar_link">
         <sensor name="lidar_sensor" type="gpu_lidar">
             <frame_name>lidar_link</frame_name>
-            <pose>0 0 0.03 3.14159 0 0</pose>
+            <pose>0 0 0.2406 3.14159 0 0</pose>
             <always_on>true</always_on>
             <visualize>true</visualize>
             <update_rate>10</update_rate>
             <ray>
                 <scan>
                     <horizontal>
-                        <samples>1500</samples>
+                        <samples>5000</samples>
                         <resolution>1.0</resolution>
                         <min_angle>0</min_angle>
                         <max_angle>6.2831852</max_angle>
                     </horizontal>
                     <vertical>
-                        <samples>32</samples>
+                        <samples>128</samples>
+                        <resolution>1</resolution>
                         <!-- roll=π 翻转了 Z 轴，垂直角度取反以补偿 -->
-                        <min_angle>-0.90757121104</min_angle>
-                        <max_angle>0.12217304764</max_angle>
+                        <min_angle>-0.12217304764</min_angle>
+                        <max_angle>1.57079632679</max_angle>  <!-- 90° -->
                     </vertical>
                 </scan>
                 <range>
                     <min>0.1</min>
                     <max>40.0</max>
+                    <resolution>0.01</resolution>
                 </range>
             </ray>
             <noise>
@@ -157,13 +172,33 @@
         </sensor>
     </gazebo>
 
-    <!-- IMU sensor (both modes) -->
+    <!-- IMU sensor on gimbal pitch (both modes) -->
     <gazebo reference="gimbal_pitch">
         <sensor name="gimbal_imu" type="imu">
             <always_on>1</always_on>
             <update_rate>200</update_rate>
         </sensor>
     </gazebo>
+
+    <!-- IMU sensor on lidar link (both modes), rotated 90° around X -->
+    <gazebo reference="lidar_link">
+        <sensor name="lidar_imu" type="imu">
+            <pose>0 0 0.2406 1.570796 0 0</pose>
+            <always_on>1</always_on>
+            <update_rate>200</update_rate>
+        </sensor>
+    </gazebo>
+
+    <!-- front left position -->
+    <gazebo reference="chassis">
+        <sensor name="chassis_imu" type="imu">
+            <pose>0.0805 0.10119 0.0153 0 0 0</pose>
+            <always_on>1</always_on>
+            <update_rate>200</update_rate>
+        </sensor>
+    </gazebo>
+
+    
 
     <!-- ====== directional friction: mu along rolling dir, mu2 along roller dir ====== -->
     <gazebo reference="front_left_wheel">

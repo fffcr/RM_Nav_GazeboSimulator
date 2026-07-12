@@ -13,6 +13,7 @@
 // limitations under the License.
 #include "rmoss_gz_base/chassis_controller.hpp"
 
+#include <cmath>
 #include <memory>
 #include <string>
 
@@ -42,7 +43,9 @@ ChassisController::ChassisController(
   ros_chassis_cmd_sub_ = node_->create_subscription<rmoss_interfaces::msg::ChassisCmd>(
     "robot_base/chassis_cmd", 10, std::bind(&ChassisController::chassis_cb, this, _1));
   ros_cmd_vel_sub_ = node_->create_subscription<geometry_msgs::msg::Twist>(
-    "cmd_vel", 10, std::bind(&ChassisController::cmd_vel_cb, this, _1));
+    "/cmd_vel", 10, std::bind(&ChassisController::cmd_vel_cb, this, _1));
+  ros_chassis_imu_sub_ = node_->create_subscription<sensor_msgs::msg::Imu>(
+    "chassis_imu", 10, std::bind(&ChassisController::chassis_imu_cb, this, _1));
   // timer and set_parameters callback
   auto period = std::chrono::milliseconds(10);
   controller_timer_ = node_->create_wall_timer(
@@ -59,9 +62,13 @@ void ChassisController::update()
     result_vel.linear = target_vel_.linear;
     result_vel.angular.z = chassis_pid_.Update(-cur_yaw_, DT);
   } else {
+    // velocity mode: rotate world-frame cmd_vel to chassis body frame
+    double theta = chassis_world_yaw_;
+    double vx_w = target_vel_.linear.x;
+    double vy_w = target_vel_.linear.y;
+    result_vel.linear.x =  vx_w * std::cos(theta) + vy_w * std::sin(theta);
+    result_vel.linear.y = -vx_w * std::sin(theta) + vy_w * std::cos(theta);
     result_vel.angular.z = target_vel_.angular.z;
-    result_vel.linear.x =  target_vel_.linear.x * std::cos(-cur_yaw_) + target_vel_.linear.y * std::sin(-cur_yaw_);
-    result_vel.linear.y = -target_vel_.linear.x * std::sin(-cur_yaw_) + target_vel_.linear.y * std::cos(-cur_yaw_);
   }
   // publish CMD
   chassis_actuator_->set(result_vel);
@@ -88,6 +95,15 @@ void ChassisController::cmd_vel_cb(const geometry_msgs::msg::Twist::SharedPtr ms
 {
   target_vel_ = *msg;
   follow_mode_flag_ = false;
+}
+
+void ChassisController::chassis_imu_cb(const sensor_msgs::msg::Imu::SharedPtr msg)
+{
+  // extract yaw from quaternion (standard quaternion→Euler conversion)
+  auto & q = msg->orientation;
+  double siny_cosp = 2.0 * (q.w * q.z + q.x * q.y);
+  double cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z);
+  chassis_world_yaw_ = std::atan2(siny_cosp, cosy_cosp);
 }
 
 void ChassisController::set_chassis_pid(PidParam pid_param)

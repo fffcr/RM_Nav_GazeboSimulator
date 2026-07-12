@@ -22,6 +22,7 @@
 #include "rmoss_gz_base/pid.hpp"
 #include "rmoss_interfaces/msg/chassis_cmd.hpp"
 #include "geometry_msgs/msg/twist.hpp"
+#include "sensor_msgs/msg/imu.hpp"
 #include "rmoss_interfaces/msg/gimbal.hpp"
 #include "hardware_interface.hpp"
 
@@ -45,12 +46,14 @@ public:
 private:
   void chassis_cb(const rmoss_interfaces::msg::ChassisCmd::SharedPtr msg);
   void cmd_vel_cb(const geometry_msgs::msg::Twist::SharedPtr msg);
+  void chassis_imu_cb(const sensor_msgs::msg::Imu::SharedPtr msg);
   void update();
 
 private:
   rclcpp::Node::SharedPtr node_;
   rclcpp::Subscription<rmoss_interfaces::msg::ChassisCmd>::SharedPtr ros_chassis_cmd_sub_;
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr ros_cmd_vel_sub_;
+  rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr ros_chassis_imu_sub_;
   rclcpp::TimerBase::SharedPtr controller_timer_;
   // actuator and sensor
   Actuator<geometry_msgs::msg::Twist>::SharedPtr chassis_actuator_;
@@ -62,6 +65,7 @@ private:
   geometry_msgs::msg::Twist target_vel_;
   // pid and pid parameter
   double cur_yaw_{0};
+  double chassis_world_yaw_{0};
   PidParam chassis_pid_param_;
   ignition::math::PID chassis_pid_;
   // flag

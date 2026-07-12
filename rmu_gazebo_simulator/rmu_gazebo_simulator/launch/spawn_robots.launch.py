@@ -158,7 +158,10 @@ def generate_launch_description():
             package="ros_gz_bridge",
             executable="parameter_bridge",
             namespace=robot["name"],
-            parameters=[{"config_file": aft_replace_ros_bridge_params}],
+            parameters=[
+                {"config_file": aft_replace_ros_bridge_params,
+                 "use_sim_time": True}
+            ],
         )
 
         # ----------------------------------------------------------------
