@@ -88,7 +88,7 @@ robots:
       color: "red"
       x_pose: "3.4"
       y_pose: "9.5"
-      z_pose: "0.1"
+      z_pose: "0.4"
       yaw: "0.0"
 
     # - name: "blue_standard_robot1"

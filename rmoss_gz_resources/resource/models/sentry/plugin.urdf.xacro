@@ -140,7 +140,7 @@
                         <resolution>1</resolution>
                         <!-- roll=π 翻转了 Z 轴，垂直角度取反以补偿 -->
                         <min_angle>-0.12217304764</min_angle>
-                        <max_angle>1.57079632679</max_angle>  <!-- 90° -->
+                        <max_angle>1.37079632679</max_angle>  <!-- 90° -->
                     </vertical>
                 </scan>
                 <range>
