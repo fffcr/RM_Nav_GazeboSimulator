@@ -55,6 +55,11 @@ target_link_libraries(OmniDrive
 # Ensure plugin loads correctly (C++17 required by Ignition)
 target_compile_features(OmniDrive PUBLIC cxx_std_17)
 
+# ========== environment hook: Ignition Gazebo plugin path ==========
+ament_environment_hooks(
+  "${CMAKE_CURRENT_SOURCE_DIR}/env-hooks/${PROJECT_NAME}.dsv"
+)
+
 # ========== install ==========
 install(
   TARGETS OmniDrive

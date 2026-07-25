@@ -207,12 +207,24 @@ void OmniDrive::Configure(const Entity &_entity,
         ignition::common::replaceAll(
             this->dataPtr->chassisLinkName, "::", "/");
 
-    // ----- init wheel velocity PID -----
+    // ----- init wheel velocity PID (参数从 SDF 读取，无需重新编译) -----
     // (P, I, D, imax, imin, cmdMax, cmdMin, iLimit)
-    for (int i = 0; i < WHEEL_NUM; i++)
     {
-        // 恢复原始值：P=0.5, I=0, D=0 — 已验证能直走
-        this->dataPtr->wheelPids[i].Init(0.5, 0.0, 0.0, 0.0, 0.0, 50.0, -50.0, 0.0);
+        double pidP      = _sdf->Get<double>("pid_p",       0.02).first;
+        double pidI      = _sdf->Get<double>("pid_i",       0.0).first;
+        double pidD      = _sdf->Get<double>("pid_d",       0.0005).first;
+        double pidCmdMax = _sdf->Get<double>("pid_cmd_max", 0.5).first;
+        double pidCmdMin = _sdf->Get<double>("pid_cmd_min", -0.5).first;
+
+        for (int i = 0; i < WHEEL_NUM; i++)
+        {
+            this->dataPtr->wheelPids[i].Init(
+                pidP, pidI, pidD, 0.0, 0.0, pidCmdMax, pidCmdMin, 0.0);
+        }
+
+        ignwarn << "OmniDrive PID: P=" << pidP << " I=" << pidI
+                << " D=" << pidD << " cmd=[" << pidCmdMin
+                << ", " << pidCmdMax << "]" << std::endl;
     }
 
     ignwarn << "OmniDrive configured successfully." << std::endl;
@@ -257,7 +269,7 @@ void OmniDrive::PreUpdate(const ignition::gazebo::UpdateInfo &_info,
     double targets[WHEEL_NUM];
     this->dataPtr->ComputeWheelVelocities(vx, vy, omega, targets);
 
-    // ----- PID control per wheel -----
+    // ----- PID 速度闭环控制 -----
     for (int i = 0; i < WHEEL_NUM; i++)
     {
         auto jointEntity = this->dataPtr->wheelJoints[i];
@@ -265,17 +277,17 @@ void OmniDrive::PreUpdate(const ignition::gazebo::UpdateInfo &_info,
         if (jointEntity == kNullEntity)
             continue;
 
-        // ensure JointVelocity component exists
-        auto velComp = _ecm.Component<components::JointVelocity>(jointEntity);
-        if (!velComp)
+        // 读取当前关节角速度 (rad/s)
+        double currentVel = 0.0;
+        auto velComp =
+            _ecm.Component<components::JointVelocity>(jointEntity);
+        if (velComp && !velComp->Data().empty())
         {
-            _ecm.CreateComponent(jointEntity, components::JointVelocity());
-            continue;  // skip this iteration, velocity not available yet
+            currentVel = velComp->Data().at(0);
         }
 
-        // current angular velocity [rad/s]
-        double currentVel = velComp->Data().at(0);
-        double error = currentVel - targets[i];
+        // PID：error = target - current，输出力矩使实际速度跟踪目标速度
+        double error = targets[i] - currentVel;
         double forceCmd = this->dataPtr->wheelPids[i].Update(error, _info.dt);
 
         // ensure JointForceCmd component exists

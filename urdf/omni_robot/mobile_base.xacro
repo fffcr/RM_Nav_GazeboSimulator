@@ -27,19 +27,33 @@
                 <origin xyz="0 0 0" rpy="${pi/2.0} 0 0"/>
                 <material name="${color}"/>
             </visual>
+            <!-- cylinder 碰撞在 DART+ODE 中与非轴对齐平面碰撞时 AABB 溢出，注释备用 -->
             <collision>
                 <geometry>
                     <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
                 </geometry>
                 <origin xyz="0 0 0" rpy="${pi/2.0} 0 0"/>
             </collision>
+            <!-- <collision>
+                <geometry>
+                    <box size="${2*wheel_radius} 0.04 ${2*wheel_radius}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="${pi/2.0} 0 0"/>
+            </collision> -->
             <xacro:cylinder_inertia m="${wheel_mass}" r="${wheel_radius}" l="${wheel_length}"
                                     o_xyz="0 0 0" o_rpy="${pi/2.0} 0 0"/>
         </link>
     </xacro:macro>
 
     <!-- ========== 基座标系 ========== -->
-    <link name="base_footprint"/>
+    <!-- DART 要求所有参与运动链的 link 必须有质量/惯性，
+         否则 body node 位姿为 NaN → ODE 碰撞 AABB 溢出 -->
+    <link name="base_footprint">
+        <inertial>
+            <mass value="0.001"/>
+            <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+        </inertial>
+    </link>
 
     <!-- ========== 底盘 link ========== -->
     <link name="base_link">
