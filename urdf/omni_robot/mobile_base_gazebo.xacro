@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="https://www.ros.org/wiki/xacro">
+
+    <!-- ========== 全向轮摩擦 ========== -->
+    <!-- mu1: 高摩擦方向 (fdir1 = 轮子滚动方向 = 本地 X 轴) -->
+    <!-- mu2: 低摩擦方向 (垂直于 fdir1 = 本地 Y 轴 = 滚子自由滑动方向) -->
+    <!-- 滚子垂直于主轮：沿轮轴方向自由滑动 -->
+    <gazebo reference="fl_wheel_link">
+        <mu1>1.0</mu1>
+        <mu2>0.01</mu2>
+        <fdir1>1 0 0</fdir1>
+    </gazebo>
+    <gazebo reference="fr_wheel_link">
+        <mu1>1.0</mu1>
+        <mu2>0.01</mu2>
+        <fdir1>1 0 0</fdir1>
+    </gazebo>
+    <gazebo reference="rl_wheel_link">
+        <mu1>1.0</mu1>
+        <mu2>0.01</mu2>
+        <fdir1>1 0 0</fdir1>
+    </gazebo>
+    <gazebo reference="rr_wheel_link">
+        <mu1>1.0</mu1>
+        <mu2>0.01</mu2>
+        <fdir1>1 0 0</fdir1>
+    </gazebo>
+
+    <!-- ========== OmniDrive 全向轮运动模型插件 ========== -->
+    <!--
+      X 型全向轮布局（滚子 ⊕ 主轮）：
+
+                RL(↖)   FL(↗)
+                    \  /
+                     \/
+                     /\
+                    /  \
+                RR(↙)   FR(↘)
+
+      每个轮绕 Z 轴转 ±45°(或 ±135°)，轴沿对角线向外。
+      cmd_vel → 轮角速度 的逆运动学在插件内部完成。
+
+      参数：
+        wheel_separation_x = 前后轮心间距 = 2 * wheel_x
+        wheel_separation_y = 左右轮心间距 = 2 * wheel_y
+    -->
+    <xacro:property name="omni_lx" value="${base_length/2.0 - wheel_length/2.0}"/>
+    <xacro:property name="omni_ly" value="${base_width/2.0 - wheel_length/2.0}"/>
+
+    <gazebo>
+        <plugin filename="OmniDrive" name="ignition::gazebo::systems::OmniDrive">
+            <chassis_link>base_link</chassis_link>
+            <front_left_joint>base_fl_wheel_joint</front_left_joint>
+            <front_right_joint>base_fr_wheel_joint</front_right_joint>
+            <rear_left_joint>base_rl_wheel_joint</rear_left_joint>
+            <rear_right_joint>base_rr_wheel_joint</rear_right_joint>
+            <wheel_radius>${wheel_radius}</wheel_radius>
+            <wheel_separation_x>${omni_lx * 2}</wheel_separation_x>
+            <wheel_separation_y>${omni_ly * 2}</wheel_separation_y>
+        </plugin>
+    </gazebo>
+
+    <!-- ========== Joint State Publisher ========== -->
+    <gazebo>
+        <plugin
+            filename="gz-sim-joint-state-publisher-system"
+            name="gz::sim::systems::JointStatePublisher">
+            <joint_name>base_fl_wheel_joint</joint_name>
+            <joint_name>base_fr_wheel_joint</joint_name>
+            <joint_name>base_rl_wheel_joint</joint_name>
+            <joint_name>base_rr_wheel_joint</joint_name>
+        </plugin>
+    </gazebo>
+
+</robot>

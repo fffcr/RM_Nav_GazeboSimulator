@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="https://www.ros.org/wiki/xacro">
+    <!-- 驱动轮高摩擦（橡胶抓地，防打滑漂移） -->
+    <gazebo reference="left_wheel_link">
+        <mu1 value="1.0"/>
+        <mu2 value="0.8"/>
+        <kp value="1e7"/>
+        <kd value="1"/>
+    </gazebo>
+    <gazebo reference="right_wheel_link">
+        <mu1 value="1.0"/>
+        <mu2 value="0.8"/>
+        <kp value="1e7"/>
+        <kd value="1"/>
+    </gazebo>
+
+    <!-- 万向轮零摩擦，不干扰驱动轮 -->
+    <gazebo reference="caster_wheel_link">
+        <mu1 value="0.0"/>
+        <mu2 value="0.0"/>
+    </gazebo>
+    <gazebo>
+        <plugin filename="gz-sim-diff-drive-system"
+                name="gz::sim::systems::DiffDrive">
+                <left_joint>base_left_wheel_joint</left_joint>
+                <right_joint>base_right_wheel_joint</right_joint>
+                <wheel_separation>0.45</wheel_separation>
+                <wheel_radius>0.1</wheel_radius>
+                <max_wheel_torque>50.0</max_wheel_torque>
+                <max_wheel_acceleration>200.0</max_wheel_acceleration>
+                <frame_id>odom</frame_id>
+                <child_frame_id>base_footprint</child_frame_id>
+        </plugin>
+    </gazebo>
+
+    <gazebo>
+        <plugin
+            filename="gz-sim-joint-state-publisher-system"
+            name="gz::sim::systems::JointStatePublisher">
+            <joint_name>base_left_wheel_joint</joint_name>
+            <joint_name>base_right_wheel_joint</joint_name>
+        </plugin>
+    </gazebo>
+</robot>
