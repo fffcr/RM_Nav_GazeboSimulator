@@ -207,24 +207,11 @@ void OmniDrive::Configure(const Entity &_entity,
         ignition::common::replaceAll(
             this->dataPtr->chassisLinkName, "::", "/");
 
-    // ----- init wheel velocity PID (参数从 SDF 读取，无需重新编译) -----
+    // ----- init wheel velocity PID -----
     // (P, I, D, imax, imin, cmdMax, cmdMin, iLimit)
+    for (int i = 0; i < WHEEL_NUM; i++)
     {
-        double pidP      = _sdf->Get<double>("pid_p",       0.02).first;
-        double pidI      = _sdf->Get<double>("pid_i",       0.0).first;
-        double pidD      = _sdf->Get<double>("pid_d",       0.0005).first;
-        double pidCmdMax = _sdf->Get<double>("pid_cmd_max", 0.5).first;
-        double pidCmdMin = _sdf->Get<double>("pid_cmd_min", -0.5).first;
-
-        for (int i = 0; i < WHEEL_NUM; i++)
-        {
-            this->dataPtr->wheelPids[i].Init(
-                pidP, pidI, pidD, 0.0, 0.0, pidCmdMax, pidCmdMin, 0.0);
-        }
-
-        ignwarn << "OmniDrive PID: P=" << pidP << " I=" << pidI
-                << " D=" << pidD << " cmd=[" << pidCmdMin
-                << ", " << pidCmdMax << "]" << std::endl;
+        this->dataPtr->wheelPids[i].Init(0.5, 0.0, 0.0, 0.0, 0.0, 50.0, -50.0, 0.0);
     }
 
     ignwarn << "OmniDrive configured successfully." << std::endl;
@@ -269,25 +256,22 @@ void OmniDrive::PreUpdate(const ignition::gazebo::UpdateInfo &_info,
     double targets[WHEEL_NUM];
     this->dataPtr->ComputeWheelVelocities(vx, vy, omega, targets);
 
-    // ----- PID 速度闭环控制 -----
+    // ----- PID control per wheel -----
     for (int i = 0; i < WHEEL_NUM; i++)
     {
         auto jointEntity = this->dataPtr->wheelJoints[i];
 
-        if (jointEntity == kNullEntity)
-            continue;
-
-        // 读取当前关节角速度 (rad/s)
-        double currentVel = 0.0;
-        auto velComp =
-            _ecm.Component<components::JointVelocity>(jointEntity);
-        if (velComp && !velComp->Data().empty())
+        // ensure JointVelocity component exists
+        auto velComp = _ecm.Component<components::JointVelocity>(jointEntity);
+        if (!velComp)
         {
-            currentVel = velComp->Data().at(0);
+            _ecm.CreateComponent(jointEntity, components::JointVelocity());
+            continue;  // skip this iteration, velocity not available yet
         }
 
-        // PID：error = target - current，输出力矩使实际速度跟踪目标速度
-        double error = targets[i] - currentVel;
+        // current angular velocity [rad/s]
+        double currentVel = velComp->Data().at(0);
+        double error = currentVel - targets[i];
         double forceCmd = this->dataPtr->wheelPids[i].Update(error, _info.dt);
 
         // ensure JointForceCmd component exists
@@ -324,18 +308,23 @@ void OmniDrivePrivate::ComputeWheelVelocities(double _vx, double _vy,
                                               double _omega,
                                               double _target[WHEEL_NUM])
 {
-    // X-configuration omni wheel inverse kinematics
+    // omni wheel inverse kinematics (rollers ⟂ wheel plane)
     //
-    // Wheel axes point outward along diagonals (set by URDF joint rpy):
-    //   FL axis → ( 0.707,  0.707)  drive direction → (-0.707,  0.707)  rear-left
-    //   FR axis → ( 0.707, -0.707)  drive direction → ( 0.707,  0.707)  front-left
-    //   RL axis → (-0.707,  0.707)  drive direction → (-0.707, -0.707)  rear-right
-    //   RR axis → (-0.707, -0.707)  drive direction → ( 0.707, -0.707)  front-right
+    //   lx = wheel_separation_x / 2   (half wheelbase, front–rear)
+    //   ly = wheel_separation_y / 2   (half track width, left–right)
+    //   L  = lx + ly
     //
-    // Positive ω drives robot in the "drive direction" above.
-    // ROS convention: x=forward, y=left, ωz=CCW from top
+    // Each wheel hub is mounted at ±45°; drive force is along hub axis.
+    // Positive ω produces rolling in:
+    //   FL → (+x, +y)    FR → (+x, -y)
+    //   RL → (-x, +y)    RR → (-x, -y)
     //
-    //   lx = wheel_separation_x / 2,  ly = wheel_separation_y / 2,  L = lx + ly
+    //   ω_fl = (+vx + vy - L·ωz) / r
+    //   ω_fr = (+vx - vy - L·ωz) / r
+    //   ω_rl = (-vx + vy - L·ωz) / r
+    //   ω_rr = (-vx - vy - L·ωz) / r
+    //
+    // ROS convention: x=forward, y=left, ωz=CCW looking from top
 
     double lx = wheelSeparationX / 2.0;
     double ly = wheelSeparationY / 2.0;
