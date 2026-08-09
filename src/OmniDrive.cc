@@ -94,6 +94,7 @@ public:
 
     // ---- wheel velocity PID ----
     ignition::math::PID wheelPids[WHEEL_NUM];
+    double ffGain{0.3};  // velocity feedforward gain (SDF: <ff_gain>)
     double wheelTargetVel[WHEEL_NUM] = {0, 0, 0, 0};
 
     // ---- cmd_vel ----
@@ -207,11 +208,26 @@ void OmniDrive::Configure(const Entity &_entity,
         ignition::common::replaceAll(
             this->dataPtr->chassisLinkName, "::", "/");
 
-    // ----- init wheel velocity PID -----
-    // (P, I, D, imax, imin, cmdMax, cmdMin, iLimit)
-    for (int i = 0; i < WHEEL_NUM; i++)
+    // ----- init wheel velocity PID (参数从 SDF 读取，改 xacro 无需重新编译 C++) -----
     {
-        this->dataPtr->wheelPids[i].Init(0.5, 0.0, 0.0, 0.0, 0.0, 50.0, -50.0, 0.0);
+        double pidP      = _sdf->Get<double>("pid_p",       0.5).first;
+        double pidI      = _sdf->Get<double>("pid_i",       0.0).first;
+        double pidD      = _sdf->Get<double>("pid_d",       0.0).first;
+        double pidCmdMax = _sdf->Get<double>("pid_cmd_max", 50.0).first;
+        double pidCmdMin = _sdf->Get<double>("pid_cmd_min", -50.0).first;
+
+        for (int i = 0; i < WHEEL_NUM; i++)
+        {
+            this->dataPtr->wheelPids[i].Init(
+                pidP, pidI, pidD, 0.0, 0.0, pidCmdMax, pidCmdMin, 0.0);
+        }
+
+        this->dataPtr->ffGain = _sdf->Get<double>("ff_gain", 0.3).first;
+
+        ignwarn << "OmniDrive PID: P=" << pidP << " I=" << pidI
+                << " D=" << pidD << " cmd=[" << pidCmdMin
+                << ", " << pidCmdMax << "] ff_gain=" << this->dataPtr->ffGain
+                << std::endl;
     }
 
     ignwarn << "OmniDrive configured successfully." << std::endl;
@@ -272,7 +288,11 @@ void OmniDrive::PreUpdate(const ignition::gazebo::UpdateInfo &_info,
         // current angular velocity [rad/s]
         double currentVel = velComp->Data().at(0);
         double error = currentVel - targets[i];
-        double forceCmd = this->dataPtr->wheelPids[i].Update(error, _info.dt);
+
+        // velocity feedforward + PID correction
+        // ff 让目标速度变化时立刻响应，不等误差积累
+        double ff = this->dataPtr->ffGain * targets[i];
+        double forceCmd = ff + this->dataPtr->wheelPids[i].Update(error, _info.dt);
 
         // ensure JointForceCmd component exists
         auto forceComp =

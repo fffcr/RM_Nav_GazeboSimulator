@@ -56,12 +56,13 @@
             <wheel_radius>${wheel_radius}</wheel_radius>
             <wheel_separation_x>${omni_lx * 2}</wheel_separation_x>
             <wheel_separation_y>${omni_ly * 2}</wheel_separation_y>
-            <!-- PID 速度环参数：改这里无需重新编译 C++ -->
-            <pid_p>0.02</pid_p>
+            <!-- 速度环参数：改这里无需重新编译 C++ -->
+            <pid_p>0.5</pid_p>
             <pid_i>0.0</pid_i>
-            <pid_d>0.0005</pid_d>
-            <pid_cmd_max>0.5</pid_cmd_max>
-            <pid_cmd_min>-0.5</pid_cmd_min>
+            <pid_d>0.0</pid_d>
+            <pid_cmd_max>50.0</pid_cmd_max>
+            <pid_cmd_min>-50.0</pid_cmd_min>
+            <ff_gain>0.3</ff_gain>
         </plugin>
     </gazebo>
 
