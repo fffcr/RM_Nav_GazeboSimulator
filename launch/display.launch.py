@@ -7,9 +7,8 @@ from ament_index_python.packages import get_package_share_path
 
 def generate_launch_description():
 
-    # urdf_path=os.path.join(get_package_share_path('my_robot_description'),
-    #                        'urdf','my_robot.urdf.xacro')
-    urdf_path='/mnt/d/RM/Nav/neupan_ws/src/sim_environment/urdf/diff_robot/my_robot.urdf.xacro'
+    urdf_path=os.path.join(get_package_share_path('sim_environment'),
+                           'urdf','diff_robot','my_robot.urdf.xacro')
     rviz_config_path=os.path.join(get_package_share_path('sim_environment'),
                                   'rviz','urdf_config.rviz')
     robot_description= ParameterValue(Command(['xacro', ' ', urdf_path]),value_type=str)

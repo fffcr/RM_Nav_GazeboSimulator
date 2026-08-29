@@ -14,12 +14,12 @@ find_package(geometry_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 
-# find Ignition Gazebo (Fortress)
-find_package(ignition-gazebo6 REQUIRED)
-find_package(ignition-transport11 REQUIRED)
-find_package(ignition-common4 REQUIRED)
-find_package(ignition-math6 REQUIRED)
-find_package(ignition-plugin1 REQUIRED)
+# find Gazebo (Harmonic)
+find_package(gz-sim8 REQUIRED)
+find_package(gz-transport13 REQUIRED)
+find_package(gz-common5 REQUIRED)
+find_package(gz-math7 REQUIRED)
+find_package(gz-plugin2 REQUIRED)
 
 # ========== OmniDrive plugin ==========
 set(OMNI_DRIVE_HEADERS
@@ -45,14 +45,14 @@ target_include_directories(OmniDrive
 
 target_link_libraries(OmniDrive
   PUBLIC
-    ignition-gazebo6::ignition-gazebo6
-    ignition-transport11::ignition-transport11
-    ignition-common4::ignition-common4
-    ignition-math6::ignition-math6
-    ignition-plugin1::ignition-plugin1
+    gz-sim8::gz-sim8
+    gz-transport13::gz-transport13
+    gz-common5::gz-common5
+    gz-math7::gz-math7
+    gz-plugin2::gz-plugin2
 )
 
-# Ensure plugin loads correctly (C++17 required by Ignition)
+# Ensure plugin loads correctly (C++17 required by Gazebo)
 target_compile_features(OmniDrive PUBLIC cxx_std_17)
 
 # ========== environment hook: Ignition Gazebo plugin path ==========

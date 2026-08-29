@@ -16,12 +16,12 @@
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
 
-  <!-- Ignition Gazebo (Fortress) -->
-  <depend>ignition-gazebo6</depend>
-  <depend>ignition-transport11</depend>
-  <depend>ignition-common4</depend>
-  <depend>ignition-math6</depend>
-  <depend>ignition-plugin1</depend>
+  <!-- Gazebo (Harmonic) -->
+  <depend>gz-sim8</depend>
+  <depend>gz-transport13</depend>
+  <depend>gz-common5</depend>
+  <depend>gz-math7</depend>
+  <depend>gz-plugin2</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

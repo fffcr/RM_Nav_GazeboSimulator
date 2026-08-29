@@ -28,7 +28,7 @@ def generate_launch_description():
 
     # ---- 1. Gazebo server ----
     gz_server = ExecuteProcess(
-        cmd=['ign', 'gazebo', world_path, '-r'],
+        cmd=['gz', 'sim', world_path, '-r'],
         output='screen',
     )
 

@@ -47,7 +47,7 @@
     <xacro:property name="omni_ly" value="${base_width/2.0 - wheel_length/2.0}"/>
 
     <gazebo>
-        <plugin filename="OmniDrive" name="ignition::gazebo::systems::OmniDrive">
+        <plugin filename="OmniDrive" name="gz::sim::systems::OmniDrive">
             <chassis_link>base_link</chassis_link>
             <front_left_joint>base_fl_wheel_joint</front_left_joint>
             <front_right_joint>base_fr_wheel_joint</front_right_joint>

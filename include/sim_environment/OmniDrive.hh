@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IGNITION_GAZEBO_SYSTEMS_OMNI_DRIVE_HH
-#define IGNITION_GAZEBO_SYSTEMS_OMNI_DRIVE_HH
+#ifndef GZ_SIM_SYSTEMS_OMNI_DRIVE_HH
+#define GZ_SIM_SYSTEMS_OMNI_DRIVE_HH
 
 #include <memory>
-#include <ignition/gazebo/System.hh>
+#include <gz/sim/System.hh>
 
-namespace ignition
+namespace gz
 {
-    namespace gazebo
+    namespace sim
     {
         namespace systems
         {
@@ -28,7 +28,7 @@ namespace ignition
 
             /// \brief Mecanum omnidirectional drive plugin.
             ///
-            /// Subscribes to /<model>/cmd_vel (ignition::msgs::Twist),
+            /// Subscribes to /<model>/cmd_vel (gz::msgs::Twist),
             /// computes target angular velocity for each wheel using mecanum
             /// inverse kinematics, and commands joints via velocity PID.
             ///
@@ -41,8 +41,8 @@ namespace ignition
             ///   <wheel_radius>        - wheel radius (m)
             ///   <wheel_separation_x>  - front-rear wheel distance (m)
             ///   <wheel_separation_y>  - left-right wheel distance (m)
-            class IGNITION_GAZEBO_VISIBLE OmniDrive
-                : public ignition::gazebo::System,
+            class GZ_SIM_VISIBLE OmniDrive
+                : public gz::sim::System,
                   public ISystemConfigure,
                   public ISystemPreUpdate,
                   public ISystemPostUpdate
@@ -57,18 +57,18 @@ namespace ignition
                                EntityComponentManager &_ecm,
                                EventManager &_eventMgr) override;
 
-                void PreUpdate(const ignition::gazebo::UpdateInfo &_info,
-                               ignition::gazebo::EntityComponentManager &_ecm) override;
+                void PreUpdate(const gz::sim::UpdateInfo &_info,
+                               gz::sim::EntityComponentManager &_ecm) override;
 
-                void PostUpdate(const ignition::gazebo::UpdateInfo &_info,
-                                const ignition::gazebo::EntityComponentManager &_ecm) override;
+                void PostUpdate(const gz::sim::UpdateInfo &_info,
+                                const gz::sim::EntityComponentManager &_ecm) override;
 
             private:
                 std::unique_ptr<OmniDrivePrivate> dataPtr;
             };
 
         }  // namespace systems
-    }  // namespace gazebo
-}  // namespace ignition
+    }  // namespace sim
+}  // namespace gz
 
-#endif  // IGNITION_GAZEBO_SYSTEMS_OMNI_DRIVE_HH
+#endif  // GZ_SIM_SYSTEMS_OMNI_DRIVE_HH

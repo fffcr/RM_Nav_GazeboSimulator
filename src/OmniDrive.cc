@@ -13,33 +13,36 @@
 // limitations under the License.
 
 #include <mutex>
-#include <ignition/common/Util.hh>
-#include <ignition/common/Profiler.hh>
-#include <ignition/plugin/Register.hh>
-#include <ignition/transport/Node.hh>
+#include <gz/common/Util.hh>
+#include <gz/common/Profiler.hh>
+#include <gz/plugin/Register.hh>
+#include <gz/transport/Node.hh>
 
-#include <ignition/gazebo/components/AngularVelocity.hh>
-#include <ignition/gazebo/components/JointForceCmd.hh>
-#include <ignition/gazebo/components/JointVelocity.hh>
-#include <ignition/gazebo/components/LinearVelocity.hh>
-#include <ignition/gazebo/components/Pose.hh>
-#include <ignition/gazebo/Conversions.hh>
-#include <ignition/gazebo/Joint.hh>
-#include <ignition/gazebo/Link.hh>
-#include <ignition/gazebo/Model.hh>
-#include <ignition/gazebo/Util.hh>
+#include <gz/msgs/odometry.pb.h>
+#include <gz/msgs/twist.pb.h>
 
-#include <ignition/math/PID.hh>
-#include <ignition/math/Pose3.hh>
-#include <ignition/math/Quaternion.hh>
-#include <ignition/math/Vector3.hh>
+#include <gz/sim/components/AngularVelocity.hh>
+#include <gz/sim/components/JointForceCmd.hh>
+#include <gz/sim/components/JointVelocity.hh>
+#include <gz/sim/components/LinearVelocity.hh>
+#include <gz/sim/components/Pose.hh>
+#include <gz/sim/Conversions.hh>
+#include <gz/sim/Joint.hh>
+#include <gz/sim/Link.hh>
+#include <gz/sim/Model.hh>
+#include <gz/sim/Util.hh>
+
+#include <gz/math/PID.hh>
+#include <gz/math/Pose3.hh>
+#include <gz/math/Quaternion.hh>
+#include <gz/math/Vector3.hh>
 
 #include "OmniDrive.hh"
 
 #define WHEEL_NUM 4
 
-using namespace ignition;
-using namespace gazebo;
+using namespace gz;
+using namespace sim;
 using namespace systems;
 
 // ---------- SDF element names for the four wheel joints ----------
@@ -51,7 +54,7 @@ const std::string kSdfElemJointNames[WHEEL_NUM] = {
 };
 
 // ---------- private data ----------
-class ignition::gazebo::systems::OmniDrivePrivate
+class gz::sim::systems::OmniDrivePrivate
 {
 public:
     enum WheelIndex
@@ -63,12 +66,12 @@ public:
     };
 
 public:
-    /// \brief cmd_vel callback (runs in ignition-transport thread)
-    void OnCmdVel(const ignition::msgs::Twist &_msg);
+    /// \brief cmd_vel callback (runs in gz-transport thread)
+    void OnCmdVel(const gz::msgs::Twist &_msg);
 
     /// \brief publish odometry message
-    void UpdateOdometry(const ignition::gazebo::UpdateInfo &_info,
-                        const ignition::gazebo::EntityComponentManager &_ecm);
+    void UpdateOdometry(const gz::sim::UpdateInfo &_info,
+                        const gz::sim::EntityComponentManager &_ecm);
 
     /// \brief mecanum inverse kinematics: chassis velocity → wheel angular velocity
     void ComputeWheelVelocities(double _vx, double _vy, double _omega,
@@ -93,7 +96,7 @@ public:
     double wheelSeparationY{0.284};   // left–right distance
 
     // ---- wheel velocity PID ----
-    ignition::math::PID wheelPids[WHEEL_NUM];
+    gz::math::PID wheelPids[WHEEL_NUM];
     double ffGain{0.3};  // velocity feedforward gain (SDF: <ff_gain>)
     double wheelTargetVel[WHEEL_NUM] = {0, 0, 0, 0};
 
@@ -106,7 +109,7 @@ public:
     bool configured = false;  // true only if Configure() fully succeeded
     std::string odomFrameId;
     std::string odomChildFrameId;
-    ignition::math::Pose3d initPose;
+    gz::math::Pose3d initPose;
     transport::Node::Publisher odomPub;
 };
 
@@ -123,13 +126,13 @@ void OmniDrive::Configure(const Entity &_entity,
     this->dataPtr->model = Model(_entity);
     if (!this->dataPtr->model.Valid(_ecm))
     {
-        ignerr << "OmniDrive plugin should be attached to a model entity."
+        gzerr << "OmniDrive plugin should be attached to a model entity."
                << std::endl;
         return;
     }
 
     // ----- chassis link (derived from first wheel joint's parent) -----
-    // Model::LinkByName may fail for URDF-loaded models in some Ignition versions.
+    // Model::LinkByName may fail for URDF-loaded models in some Gazebo versions.
     // Instead, resolve chassis from the first wheel joint's parent link (like DiffDrive).
     {
         std::string chassisNameFromSdf = _sdf->Get<std::string>("chassis_link");
@@ -140,7 +143,7 @@ void OmniDrive::Configure(const Entity &_entity,
     }
     if (this->dataPtr->chassisLink == kNullEntity)
     {
-        ignwarn << "OmniDrive: LinkByName failed, will derive chassis from "
+        gzwarn << "OmniDrive: LinkByName failed, will derive chassis from "
                 << "first wheel joint parent." << std::endl;
     }
 
@@ -154,7 +157,7 @@ void OmniDrive::Configure(const Entity &_entity,
                 _ecm, this->dataPtr->wheelJointNames[i]);
         if (this->dataPtr->wheelJoints[i] == kNullEntity)
         {
-            ignerr << "OmniDrive: wheel joint ["
+            gzerr << "OmniDrive: wheel joint ["
                    << this->dataPtr->wheelJointNames[i] << "] not found."
                    << std::endl;
             return;
@@ -171,11 +174,11 @@ void OmniDrive::Configure(const Entity &_entity,
 
     if (this->dataPtr->chassisLink == kNullEntity)
     {
-        ignerr << "OmniDrive: could not determine chassis link." << std::endl;
+        gzerr << "OmniDrive: could not determine chassis link." << std::endl;
         return;
     }
 
-    ignwarn << "OmniDrive: chassis link resolved (entity="
+    gzwarn << "OmniDrive: chassis link resolved (entity="
             << this->dataPtr->chassisLink
             << ", name from SDF=" << this->dataPtr->chassisLinkName << ")"
             << std::endl;
@@ -188,7 +191,7 @@ void OmniDrive::Configure(const Entity &_entity,
     if (_sdf->HasElement("wheel_separation_y"))
         this->dataPtr->wheelSeparationY = _sdf->Get<double>("wheel_separation_y");
 
-    ignwarn << "OmniDrive geometry: r=" << this->dataPtr->wheelRadius
+    gzwarn << "OmniDrive geometry: r=" << this->dataPtr->wheelRadius
             << " sep_x=" << this->dataPtr->wheelSeparationX
             << " sep_y=" << this->dataPtr->wheelSeparationY << std::endl;
 
@@ -196,7 +199,7 @@ void OmniDrive::Configure(const Entity &_entity,
     std::string topic{"/model/" + this->dataPtr->model.Name(_ecm) + "/cmd_vel"};
     this->dataPtr->node.Subscribe(
         topic, &OmniDrivePrivate::OnCmdVel, this->dataPtr.get());
-    ignwarn << "OmniDrive subscribing to [" << topic << "]" << std::endl;
+    gzwarn << "OmniDrive subscribing to [" << topic << "]" << std::endl;
 
     // ----- odometry publisher -----
     std::string odomTopic{this->dataPtr->model.Name(_ecm) + "/odometry"};
@@ -205,7 +208,7 @@ void OmniDrive::Configure(const Entity &_entity,
     this->dataPtr->odomFrameId = this->dataPtr->model.Name(_ecm) + "/odom";
     this->dataPtr->odomChildFrameId =
         this->dataPtr->model.Name(_ecm) + "/" +
-        ignition::common::replaceAll(
+        gz::common::replaceAll(
             this->dataPtr->chassisLinkName, "::", "/");
 
     // ----- init wheel velocity PID (参数从 SDF 读取，改 xacro 无需重新编译 C++) -----
@@ -224,21 +227,21 @@ void OmniDrive::Configure(const Entity &_entity,
 
         this->dataPtr->ffGain = _sdf->Get<double>("ff_gain", 0.3).first;
 
-        ignwarn << "OmniDrive PID: P=" << pidP << " I=" << pidI
+        gzwarn << "OmniDrive PID: P=" << pidP << " I=" << pidI
                 << " D=" << pidD << " cmd=[" << pidCmdMin
                 << ", " << pidCmdMax << "] ff_gain=" << this->dataPtr->ffGain
                 << std::endl;
     }
 
-    ignwarn << "OmniDrive configured successfully." << std::endl;
+    gzwarn << "OmniDrive configured successfully." << std::endl;
     this->dataPtr->configured = true;
 }
 
 
-void OmniDrive::PreUpdate(const ignition::gazebo::UpdateInfo &_info,
-                          ignition::gazebo::EntityComponentManager &_ecm)
+void OmniDrive::PreUpdate(const gz::sim::UpdateInfo &_info,
+                          gz::sim::EntityComponentManager &_ecm)
 {
-    IGN_PROFILE("OmniDrive::PreUpdate");
+    GZ_PROFILE("OmniDrive::PreUpdate");
 
     // nothing to do if paused or Configure failed
     if (_info.paused)
@@ -310,15 +313,15 @@ void OmniDrive::PreUpdate(const ignition::gazebo::UpdateInfo &_info,
     }
 }
 
-void OmniDrive::PostUpdate(const ignition::gazebo::UpdateInfo &_info,
-                           const ignition::gazebo::EntityComponentManager &_ecm)
+void OmniDrive::PostUpdate(const gz::sim::UpdateInfo &_info,
+                           const gz::sim::EntityComponentManager &_ecm)
 {
     this->dataPtr->UpdateOdometry(_info, _ecm);
 }
 
 
 
-void OmniDrivePrivate::OnCmdVel(const ignition::msgs::Twist &_msg)
+void OmniDrivePrivate::OnCmdVel(const gz::msgs::Twist &_msg)
 {
     std::lock_guard<std::mutex> lock(this->targetVelMutex);
     this->targetVel = _msg;
@@ -358,8 +361,8 @@ void OmniDrivePrivate::ComputeWheelVelocities(double _vx, double _vy,
 }
 
 void OmniDrivePrivate::UpdateOdometry(
-    const ignition::gazebo::UpdateInfo &_info,
-    const ignition::gazebo::EntityComponentManager &_ecm)
+    const gz::sim::UpdateInfo &_info,
+    const gz::sim::EntityComponentManager &_ecm)
 {
     // Guard against missing components (e.g. first frame before physics
     // initialises velocities, or simulation in paused state).
@@ -410,10 +413,10 @@ void OmniDrivePrivate::UpdateOdometry(
     this->odomPub.Publish(msg);
 }
 
-IGNITION_ADD_PLUGIN(OmniDrive,
-                    ignition::gazebo::System,
+GZ_ADD_PLUGIN(OmniDrive,
+                    gz::sim::System,
                     OmniDrive::ISystemConfigure,
                     OmniDrive::ISystemPreUpdate,
                     OmniDrive::ISystemPostUpdate)
 
-IGNITION_ADD_PLUGIN_ALIAS(OmniDrive, "ignition::gazebo::systems::OmniDrive")
+GZ_ADD_PLUGIN_ALIAS(OmniDrive, "gz::sim::systems::OmniDrive")
